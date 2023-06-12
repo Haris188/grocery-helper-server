@@ -31,7 +31,7 @@ model Store {
   postal_code String
   location_id Int
   location    Location  @relation(fields: [location_id], references: [id])
-  products    Product[]
+  products    Master[]
 }
 
 model Location {
@@ -47,11 +47,20 @@ model Product {
   id         Int     @id @default(autoincrement())
   name       String
   brand      String
-  unit       String
-  currency   String
   vector     String
+  stores     Master[]
+}
+
+model Master {
+  id         Int     @id @default(autoincrement())
+  store_id Int
+  store Store @relation(fields: [store_id], references: [id])
+  product_id Int
+  product Product @relation(fields: [product_id], references: [id])
   unit_price Float
-  stores     Store[]
+  unit       String
+  unit_factor Int
+  currency   String
 }
 
 model User {
