@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model master_staging {
+  Store    String? @db.Text
+  City     String? @db.Text
+  Province String? @db.Text
+  Zip_Code String? @map("Zip Code") @db.Text
+  Country  String? @db.Text
+  UPC      Int?
+  Product  String? @db.Text
+  Units    String? @db.Text
+  Brand    String? @db.Text
+  Currency String? @db.Text
+  VECTOR   String? @db.Text
+  VALUE    Float?
+
+  @@ignore
+}
+
+model Store {
+  id          Int       @id @default(autoincrement())
+  name        String
+  postal_code String
+  location_id Int
+  location    Location  @relation(fields: [location_id], references: [id])
+  products    Product[]
+}
+
+model Location {
+  id      Int     @id @default(autoincrement())
+  city    String
+  state   String
+  country String
+  stores  Store[]
+  users   User[]
+}
+
+model Product {
+  id         Int     @id @default(autoincrement())
+  name       String
+  brand      String
+  unit       String
+  currency   String
+  vector     String
+  unit_price Float
+  stores     Store[]
+}
+
+model User {
+  id                  Int      @id @default(autoincrement())
+  first_name          String
+  last_name           String
+  email               String
+  password            String
+  default_location_id Int
+  default_location    Location @relation(fields: [default_location_id], references: [id])
+}
