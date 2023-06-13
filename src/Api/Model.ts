@@ -15,22 +15,6 @@ prisma.$on('query', (event) => {
 })
 
 export const getProductList = async (params: { searchTerm: string }) => {
-    // const result = await prisma.master.findMany({
-    //     include: {
-    //         product: true,
-    //         store: true
-    //     },
-    //     where: {
-    //         product: {
-    //             OR: [
-    //                 { name: { contains: params.searchTerm } },
-    //                 { brand: { contains: params.searchTerm } }
-    //             ]
-    //         }
-    //     }
-    // })
-    //     .catch(returnNullOnErr)
-
     const result = await prisma.product.findMany({
         where: {
             OR: [
