@@ -8,7 +8,8 @@ export default function (app: Express) {
     });
 
     app.post('/product_list', async (req, res)=>{
-        const result = await Model.getProductList(req.body)
-        res.send(result)
+        let result = await Model.getProductList(req.body)
+        const withUnit = result?.map(row=>({...row, unit: row.stores[0]?.unit, unit_factor: row.stores[0]?.unit_factor}))
+        res.send(withUnit)
     })
 }

@@ -16,6 +16,12 @@ prisma.$on('query', (event) => {
 
 export const getProductList = async (params: { searchTerm: string }) => {
     const result = await prisma.product.findMany({
+        include: {
+            stores: {
+                select:{unit:true, unit_factor:true},
+                take: 1
+            }
+        },
         where: {
             OR: [
                 { name: { contains: params.searchTerm } },
