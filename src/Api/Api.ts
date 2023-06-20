@@ -18,7 +18,7 @@ export default function (app: Express) {
     })
 
     app.post('/get_total', async (req, res) => {
-        const result = await getProductList(req.body)
+        const result = await getTotalByStores(req.body)
         res.send(result)
     })
 }
@@ -41,11 +41,18 @@ async function getTotalByStores(params: getTotalByStoresParams) {
         if (!totalObj[row.store.id]) {
             totalObj[row.store.id] = {
                 total: 0,
-                products: []
+                products: [],
+                store: row.store
             }
         }
 
-        totalObj[row.store.id].products.push({ ...row, unit_factor: params.products[row.product.id].factor })
+        totalObj[row.store.id].products.push({ 
+            ...row.product, 
+            unit: row.unit,
+            unit_price: row.unit_price,
+            unit_factor: params.products[row.product.id].factor,
+            total: row.unit_price * params.products[row.product.id].factor
+        })
         totalObj[row.store.id]['total'] += row.one_factor_price * params.products[row.product.id].factor
 
     })
