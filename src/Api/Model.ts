@@ -33,3 +33,23 @@ export const getProductList = async (params: { searchTerm: string }) => {
 
     return result
 }
+
+export const getMasterList = async (params: {location: number, products: number[]})=>{
+    const result = await prisma.master.findMany({
+        select: {
+            product: true,
+            store: true,
+            unit: true,
+            unit_factor: true,
+            unit_price: true
+        },
+        where: {
+            store:{
+                location_id: params.location
+            },
+            product_id: {in: params.products}
+        }
+    })
+
+    return result.map(row=>({...row, one_factor_price: (row.unit_price/row.unit_factor)}))
+}
