@@ -1,5 +1,7 @@
 import { Express, Request, Response } from 'express'
 import * as Model from './Model'
+import { objArrayToMap } from '../Lib/Utils';
+import { Location } from '@prisma/client';
 
 interface getTotalByStoresParams {
     location: number
@@ -20,6 +22,13 @@ export default function (app: Express) {
     app.post('/get_total', async (req, res) => {
         const result = await getTotalByStores(req.body)
         res.send(result)
+    })
+
+    app.get('/initial_params', async (req, res) => {
+        const locations = await getLocations()
+        res.send({
+            locations
+        })
     })
 }
 
@@ -58,4 +67,9 @@ async function getTotalByStores(params: getTotalByStoresParams) {
     })
 
     return totalObj
+}
+
+async function getLocations(){
+    const locations = await Model.getLocations()
+    return objArrayToMap<Location>(locations, 'id')
 }

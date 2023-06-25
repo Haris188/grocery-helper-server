@@ -53,3 +53,8 @@ export const getMasterList = async (params: {location: number, products: number[
 
     return result.map(row=>({...row, one_factor_price: (row.unit_price/row.unit_factor)}))
 }
+
+export const getLocations = async ()=>{
+    const result = await prisma.location.findMany()
+    return result
+}
