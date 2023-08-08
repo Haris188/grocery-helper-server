@@ -62,9 +62,11 @@ async function getTotalByStores(params: getTotalByStoresParams) {
             unit_factor: params.products[row.product.id].factor,
             total: row.unit_price * params.products[row.product.id].factor
         })
-        totalObj[row.store.id]['total'] += row.one_factor_price * params.products[row.product.id].factor
+        totalObj[row.store.id]['total'] += row.unit_price * params.products[row.product.id].factor
 
     })
+
+    // console.log(JSON.stringify(totalObj, null, 4))
 
     return totalObj
 }
