@@ -1,5 +1,9 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, User } from '@prisma/client'
 import { returnNullOnErr } from '../Lib/Utils'
+
+type ParsedUser = (User | {
+    favourite_stores: number[]
+}) | null
 
 const prisma = new PrismaClient({
     log: [
@@ -56,5 +60,30 @@ export const getMasterList = async (params: {location: number, products: number[
 
 export const getLocations = async ()=>{
     const result = await prisma.location.findMany()
+    return result
+}
+
+export const getUserWithId = async (user_id: number)=>{
+    const result = await prisma.user.findFirst({
+        where: {
+            id: user_id
+        }
+    }) as ParsedUser
+
+    if(!result){
+        return null
+    }
+
+    result.favourite_stores = JSON.parse(result.favourite_stores.toString()) as number[]
+    return result
+}
+
+export const getStores = async ()=>{
+    const result = await prisma.store.findMany({
+        include:{
+            location: true
+        }
+    })
+    
     return result
 }

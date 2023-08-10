@@ -26,11 +26,11 @@ model master_staging {
 }
 
 model Store {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   postal_code String
   location_id Int
-  location    Location  @relation(fields: [location_id], references: [id])
+  location    Location @relation(fields: [location_id], references: [id])
   products    Master[]
 }
 
@@ -44,23 +44,23 @@ model Location {
 }
 
 model Product {
-  id         Int     @id @default(autoincrement())
-  name       String
-  brand      String
-  vector     String
-  stores     Master[]
+  id     Int      @id @default(autoincrement())
+  name   String
+  brand  String
+  vector String
+  stores Master[]
 }
 
 model Master {
-  id         Int     @id @default(autoincrement())
-  store_id Int
-  store Store @relation(fields: [store_id], references: [id])
-  product_id Int
-  product Product @relation(fields: [product_id], references: [id])
-  unit_price Float
-  unit       String
+  id          Int     @id @default(autoincrement())
+  store_id    Int
+  store       Store   @relation(fields: [store_id], references: [id])
+  product_id  Int
+  product     Product @relation(fields: [product_id], references: [id])
+  unit_price  Float
+  unit        String
   unit_factor Int
-  currency   String
+  currency    String
 }
 
 model User {
@@ -71,4 +71,5 @@ model User {
   password            String
   default_location_id Int
   default_location    Location @relation(fields: [default_location_id], references: [id])
+  favourite_stores    String
 }
