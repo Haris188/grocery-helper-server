@@ -1,7 +1,7 @@
 import { Prisma, PrismaClient, User } from '@prisma/client'
 import { returnNullOnErr } from '../Lib/Utils'
 
-type ParsedUser = (User | {
+export type ParsedUser = (User | {
     favourite_stores: number[]
 }) | null
 
@@ -67,6 +67,9 @@ export const getUserWithId = async (user_id: number)=>{
     const result = await prisma.user.findFirst({
         where: {
             id: user_id
+        },
+        include:{
+            default_location: true
         }
     }) as ParsedUser
 
@@ -86,4 +89,13 @@ export const getStores = async ()=>{
     })
     
     return result
+}
+
+export const updateUser = async (user_id: number, data: Partial<User>)=>{
+    return await prisma.user.update({
+        where:{
+            id: user_id
+        },
+        data: data
+    })
 }

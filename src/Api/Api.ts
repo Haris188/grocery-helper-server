@@ -1,7 +1,7 @@
 import { Express, Request, Response } from 'express'
 import * as Model from './Model'
 import { objArrayToMap } from '../Lib/Utils';
-import { Location } from '@prisma/client';
+import { Location, User } from '@prisma/client';
 
 interface getTotalByStoresParams {
     location: number
@@ -25,11 +25,28 @@ export default function (app: Express) {
     })
 
     app.get('/initial_params', async (req, res) => {
-        const locations = await getLocations()
-        res.send({
-            locations
-        })
+        const result = await getInitialParams(req)
+        res.send(result)
     })
+
+    app.get('/update_def_location/:location_id', async (req, res)=>{
+        const user = await getCurrentUser(req)
+        if(user?.id){
+            const result = await updateUserLocation(user.id, parseInt(req.params.location_id))
+            return res.send(result)
+        }
+        res.send('User Not Found in session')
+    })
+}
+
+async function getInitialParams(req: Request){
+    const locations = await getLocations()
+    const user = await getCurrentUser(req, {full: true})
+
+    return {
+        locations,
+        user
+    }
 }
 
 async function getProductList(params: { searchTerm: string }) {
@@ -74,4 +91,25 @@ async function getTotalByStores(params: getTotalByStoresParams) {
 async function getLocations(){
     const locations = await Model.getLocations()
     return objArrayToMap<Location>(locations, 'id')
+}
+
+async function getCurrentUser(req: Request, options: { full?: boolean} = {}): Promise<Partial<User & {favourite_stores: number[]}>>{
+    // simulates a mock user
+    if(options.full){
+        return await Model.getUserWithId(1) as User & {favourite_stores: number[]}
+    }
+
+    return {id: 1}
+}
+
+async function updateUserLocation(user_id:number, location_id:number){
+    const result = await Model.updateUser(user_id, {
+        default_location_id: location_id
+    })
+
+    if(result){
+        return await Model.getUserWithId(user_id)
+    }
+
+    return result
 }
