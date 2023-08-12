@@ -29,19 +29,33 @@ export default function (app: Express) {
         res.send(result)
     })
 
-    app.get('/update_def_location/:location_id', async (req, res)=>{
+    app.get('/update_def_location/:location_id', async (req, res) => {
         const user = await getCurrentUser(req)
-        if(user?.id){
+        if (user?.id) {
             const result = await updateUserLocation(user.id, parseInt(req.params.location_id))
+            return res.send(result)
+        }
+        res.send('User Not Found in session')
+    })
+
+    app.get('/stores', async (req, res) => {
+        const result = await getStores()
+        return res.send(result)
+    })
+
+    app.post('/set_favourite_stores', async (req, res) => {
+        const user = await getCurrentUser(req)
+        if (user?.id) {
+            const result = await setFavouriteStores(user.id, req.body)
             return res.send(result)
         }
         res.send('User Not Found in session')
     })
 }
 
-async function getInitialParams(req: Request){
+async function getInitialParams(req: Request) {
     const locations = await getLocations()
-    const user = await getCurrentUser(req, {full: true})
+    const user = await getCurrentUser(req, { full: true })
 
     return {
         locations,
@@ -72,8 +86,8 @@ async function getTotalByStores(params: getTotalByStoresParams) {
             }
         }
 
-        totalObj[row.store.id].products.push({ 
-            ...row.product, 
+        totalObj[row.store.id].products.push({
+            ...row.product,
             unit: row.unit,
             unit_price: row.unit_price,
             unit_factor: params.products[row.product.id].factor,
@@ -88,28 +102,39 @@ async function getTotalByStores(params: getTotalByStoresParams) {
     return totalObj
 }
 
-async function getLocations(){
+async function getLocations() {
     const locations = await Model.getLocations()
     return objArrayToMap<Location>(locations, 'id')
 }
 
-async function getCurrentUser(req: Request, options: { full?: boolean} = {}): Promise<Partial<User & {favourite_stores: number[]}>>{
+async function getCurrentUser(req: Request, options: { full?: boolean } = {}): Promise<Partial<User & { favourite_stores: number[] }>> {
     // simulates a mock user
-    if(options.full){
-        return await Model.getUserWithId(1) as User & {favourite_stores: number[]}
+    if (options.full) {
+        return await Model.getUserWithId(1) as User & { favourite_stores: number[] }
     }
 
-    return {id: 1}
+    return { id: 1 }
 }
 
-async function updateUserLocation(user_id:number, location_id:number){
+async function updateUserLocation(user_id: number, location_id: number) {
     const result = await Model.updateUser(user_id, {
         default_location_id: location_id
     })
 
-    if(result){
+    if (result) {
         return await Model.getUserWithId(user_id)
     }
 
     return result
+}
+
+async function getStores() {
+    const result = await Model.getStores()
+    return result
+}
+
+async function setFavouriteStores(user_id: number, stores: number[]) {
+    const result = await Model.updateUser(user_id, {
+        favourite_stores: `[${stores.toString()}]`
+    })
 }
